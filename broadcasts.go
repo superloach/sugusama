@@ -8,8 +8,8 @@ import (
 
 type BroadcastsResp struct {
 	Broadcasts []interface{} `json:"broadcasts"`
-	Status     string        `json:"status"`
-	Message    string        `json:"message,omitempty"`
+	status     string        `json:"status"`
+	message    string        `json:"message"`
 }
 
 func (c *Client) Broadcasts() (*BroadcastsResp, error) {
@@ -40,8 +40,8 @@ func (c *Client) Broadcasts() (*BroadcastsResp, error) {
 		return nil, err
 	}
 
-	if resp.Status != "ok" {
-		err := NotOK("broadcasts", resp.Message)
+	if resp.status != "ok" {
+		err := NotOK("broadcasts", resp.status, resp.message)
 		return resp, err
 	}
 

@@ -6,8 +6,8 @@ const (
 
 type StoriesResp struct {
 	Data    StoriesData `json:"data"`
-	Status  string      `json:"status"`
-	Message string      `json:"message,omitempty"`
+	status  string      `json:"status"`
+	message string      `json:"message"`
 }
 
 type StoriesOpts struct {
@@ -26,7 +26,7 @@ func (c *Client) Stories(opts *StoriesOpts) (*StoriesResp, error) {
 	}
 
 	resp := &StoriesResp{}
-	err := c.DoGraphQL(
+	err := c.GraphQL(
 		StoriesHash,
 		opts,
 		&resp,
@@ -35,8 +35,8 @@ func (c *Client) Stories(opts *StoriesOpts) (*StoriesResp, error) {
 		return nil, err
 	}
 
-	if resp.Status != "ok" {
-		err := NotOK("stories", resp.Message)
+	if resp.status != "ok" {
+		err := NotOK("stories", resp.status, resp.message)
 		return nil, err
 	}
 
@@ -99,7 +99,7 @@ type StoryItem struct {
 	Dimensions             StoryItemDimensions         `json:"dimensions"`
 	StoryViewCount         int                         `json:"story_view_count"`
 	EdgeStoryMediaViewers  StoryItemMediaViewers       `json:"edge_story_media_viewers"`
-	DisplayResources       []StoryItemDisplayResource  `json:"display_resources"`
+	DisplayResources       []DisplayResource           `json:"display_resources"`
 	DisplayURL             string                      `json:"display_url"`
 	MediaPreview           string                      `json:"media_preview"`
 	GatingInfo             interface{}                 `json:"gating_info"`
@@ -136,12 +136,6 @@ type StoryItemMediaViewersPageInfo struct {
 	EndCursor   string `json:"end_cursor"`
 }
 
-type StoryItemDisplayResource struct {
-	Src          string `json:"src"`
-	ConfigWidth  int    `json:"config_width"`
-	ConfigHeight int    `json:"config_height"`
-}
-
 type StoryItemTappableObject struct {
 	Typename    string                       `json:"__typename"`
 	X           float64                      `json:"x"`
@@ -164,7 +158,7 @@ type StoryItemMediaToSponsorUser struct {
 }
 
 type StoriesUser struct {
-	Typename   string `json:"__typename,omitempty"`
+	Typename   string `json:"__typename"`
 	ID         string `json:"id"`
 	ProfilePic string `json:"profile_pic_url"`
 	Username   string `json:"username"`

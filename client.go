@@ -6,8 +6,9 @@ import (
 )
 
 type Client struct {
+	*State
+
 	Client *http.Client
-	State  *State
 	Bases  *Bases
 }
 
@@ -29,7 +30,7 @@ func NewClient(bases *Bases) (*Client, error) {
 	}
 	c.Bases = bases
 
-	_, _, err = c.Home()
+	err = c.FetchHome()
 	if err != nil {
 		return nil, err
 	}

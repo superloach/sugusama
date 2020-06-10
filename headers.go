@@ -2,24 +2,36 @@ package sugusama
 
 import "net/http"
 
-func (c *Client) GetHeaders(resp *http.Response) {
+func (s *State) getHeaders(resp *http.Response) {
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "csrftoken" {
-			c.State.CSRF = cookie.Value
+			s.CSRF = cookie.Value
 		}
 	}
 
 	for k := range resp.Header {
 		switch k {
 		case "x-ig-set-www-claim":
-			c.State.WWWClaim = resp.Header.Get(k)
+			s.WWWClaim = resp.Header.Get(k)
 		default:
 		}
 	}
 }
 
-func (c *Client) SetHeaders(req *http.Request) {
-	req.Header.Set("X-IG-App-ID", "936619743392459")
-	req.Header.Set("X-CSRFToken", c.State.CSRF)
-	req.Header.Set("X-IG-WWW-Claim", c.State.WWWClaim)
+func (s *State) setHeaders(req *http.Request) {
+	req.Header.Set("X-IG-App-ID", InstagramWebDesktopFBAppID)
+	req.Header.Set("X-CSRFToken", s.CSRF)
+	req.Header.Set("X-IG-WWW-Claim", s.WWWClaim)
+}
+
+func (c *Client) Do(req *http.Request) (*http.Response, error) {
+	c.setHeaders(req)
+
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	c.getHeaders(resp)
+
+	return resp, nil
 }

@@ -5,32 +5,25 @@ import (
 	"net/http"
 )
 
-func (c *Client) Home() (*SharedData, *AdditionalData, error) {
+func (c *Client) FetchHome() error {
 	req, err := http.NewRequest("GET", c.Bases.Web, nil)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
 	cresp, err := c.Do(req)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 	defer cresp.Body.Close()
 
 	body, err := ioutil.ReadAll(cresp.Body)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
-	shared, err := c.ExtractSharedData(body)
-	if err != nil {
-		return nil, nil, err
-	}
+	_ = c.extractShared(body)
+	_ = c.extractAdditional(body)
 
-	additional, err := c.ExtractAdditionalData(body)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return shared, additional, nil
+	return nil
 }

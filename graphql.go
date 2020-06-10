@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-func (c *Client) DoGraphQL(hash string, variables interface{}, ret interface{}) error {
+func (c *Client) GraphQL(hash string, variables interface{}, ret interface{}) error {
 	u, err := url.Parse(c.Bases.Web)
 	if err != nil {
 		return err

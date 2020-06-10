@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/superloach/minori"
-	sugu "github.com/superloach/sugusama"
+	"github.com/superloach/sugusama"
 )
 
 var (
@@ -15,68 +16,36 @@ var (
 var Log = minori.GetLogger("sugu")
 
 func main() {
-	_f := "main"
 	flag.Parse()
 
 	if *user == "" {
-		Log.Fatal(_f, "please provide user")
+		panic("please provide user")
 	}
 	if *pass == "" {
-		Log.Fatal(_f, "please provide pass")
+		panic("please provide pass")
 	}
 
-	client, err := sugu.NewClient(nil)
+	c, err := sugusama.NewClient(nil)
 	if err != nil {
-		Log.Fatal(_f, err)
+		panic(err)
 	}
 
-	login, err := client.Login(*user, *pass)
+	err = c.Login(*user, *pass)
 	if err != nil {
-		Log.Fatal(_f, err)
-	}
-	Log.Infof(_f, "logged in as %s", login.UserID)
-
-	shared, additional, err := client.Home()
-	if err != nil {
-		Log.Fatal(_f, err)
-	}
-	Log.Infof(_f, "%#v", shared.Config.Viewer)
-	Log.Info(_f, additional)
-
-	stories, err := client.Stories(nil)
-	if err != nil {
-		Log.Error(_f, err)
-	} else {
-		Log.Infof(_f, "%d stories available", len(stories.Stories()))
+		panic(err)
 	}
 
-	activity, err := client.Activity()
-	if err != nil {
-		Log.Error(_f, err)
-	} else {
-		a, err := activity.Activity()
-		if err != nil {
-			Log.Fatal(_f, err)
-		}
+	fmt.Printf("logged in as %s\n", c.Viewer.Username)
 
-		Log.Infof(_f, "%d comment likes", a.CommentLikes)
-		Log.Infof(_f, "%d comments", a.Comments)
-		Log.Infof(_f, "%d likes", a.Likes)
-		Log.Infof(_f, "%d relationships", a.Relationships)
-		Log.Infof(_f, "%d user tags", a.UserTags)
+	err = c.FetchActivity()
+	if err != nil {
+		panic(err)
 	}
 
-	broadcasts, err := client.Broadcasts()
-	if err != nil {
-		Log.Error(_f, err)
-	} else {
-		Log.Infof(_f, "%d broadcasts", len(broadcasts.Broadcasts))
-	}
+	fmt.Printf("%#v\n", c.Activity)
 
-	directBadgeCount, err := client.DirectBadgeCount(true)
+	err = c.FetchHome()
 	if err != nil {
-		Log.Error(_f, err)
-	} else {
-		Log.Infof(_f, "%d direct messages", directBadgeCount.BadgeCount)
+		panic(err)
 	}
 }

@@ -10,9 +10,9 @@ type DirectBadgeCountResp struct {
 	UserID         int64  `json:"user_id"`
 	BadgeCount     int    `json:"badge_count"`
 	SeqID          int    `json:"seq_id"`
-	BadgeCountAtMs int64  `json:"badge_count_at_ms"`
-	Status         string `json:"status"`
-	Message        string `json:"message,omitempty"`
+	BadgeCountAtMS int64  `json:"badge_count_at_ms"`
+	status         string `json:"status"`
+	message        string `json:"message"`
 }
 
 func (c *Client) DirectBadgeCount(noRaven bool) (*DirectBadgeCountResp, error) {
@@ -46,8 +46,8 @@ func (c *Client) DirectBadgeCount(noRaven bool) (*DirectBadgeCountResp, error) {
 		return nil, err
 	}
 
-	if resp.Status != "ok" {
-		err := NotOK("direct badge count", resp.Message)
+	if resp.status != "ok" {
+		err := NotOK("direct badge count", resp.status, resp.message)
 		return nil, err
 	}
 

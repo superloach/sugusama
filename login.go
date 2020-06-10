@@ -12,21 +12,10 @@ var (
 	ErrLoginNotAuthenticated = errors.New("login not authenticated")
 )
 
-type LoginResp struct {
-	Authenticated bool   `json:"authenticated"`
-	User          bool   `json:"user"`
-	UserID        string `json:"userId"`
-	OneTapPrompt  bool   `json:"oneTapPrompt"`
-	Status        string `json:"status"`
-	Message       string `json:"message,omitempty"`
-}
-
-func (c *Client) Login(user, pass string) (*LoginResp, error) {
-	if c.State.Login != nil {
-		return c.State.Login, nil
+func (c *Client) Login(user, pass string) error {
+	if c.State.Viewer != nil && c.State.Viewer.Username == user {
+		return nil
 	}
-
-	resp := &LoginResp{}
 
 	values := url.Values{
 		"username": []string{user},
@@ -39,33 +28,52 @@ func (c *Client) Login(user, pass string) (*LoginResp, error) {
 
 	req, err := http.NewRequest("POST", u.String(), data)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	cresp, err := c.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer cresp.Body.Close()
 
+	resp := loginResp{}
 	err = json.NewDecoder(cresp.Body).Decode(&resp)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if !resp.Authenticated {
 		err := ErrLoginNotAuthenticated
-		return nil, err
+		return err
 	}
 
 	if resp.Status != "ok" {
-		err := NotOK("login", resp.Message)
-		return nil, err
+		err := NotOK("login", resp.Status, resp.Message)
+		return err
 	}
 
-	c.State.Login = resp
+	if c.State.Viewer == nil {
+		c.State.Viewer = &User{}
+	}
 
-	return resp, nil
+	if resp.UserID != "" {
+		c.State.Viewer.ID = resp.UserID
+	}
+
+	c.State.Viewer.Username = user
+	c.State.Viewer.Password = pass
+
+	return nil
+}
+
+type loginResp struct {
+	Authenticated bool   `json:"authenticated"`
+	User          bool   `json:"user"`
+	UserID        string `json:"userId"`
+	OneTapPrompt  bool   `json:"oneTapPrompt"`
+	Status        string `json:"status"`
+	Message       string `json:"message"`
 }
