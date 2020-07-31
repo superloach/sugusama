@@ -1,6 +1,9 @@
 package sugusama
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	ErrActivityMissing = errors.New("no activity returned")
@@ -28,6 +31,7 @@ func (c *Client) FetchActivity() error {
 		&resp,
 	)
 	if err != nil {
+		err = fmt.Errorf("graphql activity: %w", err)
 		return err
 	}
 

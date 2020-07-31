@@ -3,6 +3,8 @@ package sugusama
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -28,20 +30,31 @@ func (c *Client) Login(user, pass string) error {
 
 	req, err := http.NewRequest("POST", u.String(), data)
 	if err != nil {
+		err = fmt.Errorf("post %q: %w", u, err)
 		return err
 	}
+
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	cresp, err := c.Do(req)
 	if err != nil {
+		err = fmt.Errorf("do req: %w", err)
 		return err
 	}
 	defer cresp.Body.Close()
 
-	resp := loginResp{}
-	err = json.NewDecoder(cresp.Body).Decode(&resp)
+	body, err := ioutil.ReadAll(cresp.Body)
+	cresp.Body.Close()
 	if err != nil {
+		err = fmt.Errorf("read all body: %w", err)
+		return err
+	}
+
+	resp := loginResp{}
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		err = fmt.Errorf("unmarshal %#q %#v: %w", body, resp, err)
 		return err
 	}
 

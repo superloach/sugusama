@@ -3,12 +3,15 @@ package sugusama
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"regexp"
 )
 
-var additionalDataRegexp = regexp.MustCompile(`window\.__additionalDataLoaded\('feed',(.+)\);`)
+var (
+	additionalDataRegexp = regexp.MustCompile(`window\.__additionalDataLoaded\('feed',(.+)\);`)
 
-var ErrAdditionalDataNotFound = errors.New("additional data not found")
+	ErrAdditionalDataNotFound = errors.New("additional data not found")
+)
 
 func (c *Client) extractAdditional(body []byte) error {
 	ad := additionalData{}
@@ -21,6 +24,7 @@ func (c *Client) extractAdditional(body []byte) error {
 
 	err := json.Unmarshal(data, &ad)
 	if err != nil {
+		err = fmt.Errorf("unmarshal ad: %w", err)
 		return err
 	}
 

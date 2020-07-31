@@ -3,12 +3,13 @@ package sugusama
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"regexp"
 )
 
-var sharedDataRegexp = regexp.MustCompile(`window\._sharedData = ([^;]+);`)
-
 var (
+	sharedDataRegexp = regexp.MustCompile(`window\._sharedData = ([^;]+);`)
+
 	ErrSharedDataNotFound = errors.New("shared data not found")
 )
 
@@ -47,6 +48,7 @@ func (c *Client) extractShared(body []byte) error {
 	sd := sharedData{}
 	err := json.Unmarshal(data, &sd)
 	if err != nil {
+		err = fmt.Errorf("unmarshal sd: %w", err)
 		return err
 	}
 

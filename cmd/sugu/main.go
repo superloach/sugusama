@@ -27,11 +27,13 @@ func main() {
 
 	c, err := sugusama.NewClient(nil)
 	if err != nil {
+		err = fmt.Errorf("new client: %w", err)
 		panic(err)
 	}
 
 	err = c.Login(*user, *pass)
 	if err != nil {
+		err = fmt.Errorf("login %q %q: %w", *user, *pass, err)
 		panic(err)
 	}
 
@@ -39,6 +41,7 @@ func main() {
 
 	err = c.FetchActivity()
 	if err != nil {
+		err = fmt.Errorf("fetch activity: %w", err)
 		panic(err)
 	}
 
@@ -46,6 +49,7 @@ func main() {
 
 	err = c.FetchHome()
 	if err != nil {
+		err = fmt.Errorf("fetch home: %w", err)
 		panic(err)
 	}
 }

@@ -1,6 +1,7 @@
 package sugusama
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/cookiejar"
 )
@@ -19,6 +20,7 @@ func NewClient(bases *Bases) (*Client, error) {
 
 	jar, err := cookiejar.New(nil)
 	if err != nil {
+		err = fmt.Errorf("new jar: %w", err)
 		return nil, err
 	}
 	c.Client.Jar = jar
@@ -32,6 +34,7 @@ func NewClient(bases *Bases) (*Client, error) {
 
 	err = c.FetchHome()
 	if err != nil {
+		err = fmt.Errorf("fetch home: %w", err)
 		return nil, err
 	}
 

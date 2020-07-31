@@ -1,6 +1,9 @@
 package sugusama
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 func (s *State) getHeaders(resp *http.Response) {
 	for _, cookie := range resp.Cookies() {
@@ -29,6 +32,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
+		err = fmt.Errorf("do req: %w")
 		return nil, err
 	}
 	c.getHeaders(resp)

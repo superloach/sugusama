@@ -2,6 +2,7 @@ package sugusama
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -15,6 +16,7 @@ type BroadcastsResp struct {
 func (c *Client) Broadcasts() (*BroadcastsResp, error) {
 	err := c.BroadcastsOptions()
 	if err != nil {
+		err = fmt.Errorf("broadcasts options: %w", err)
 		return nil, err
 	}
 
@@ -25,18 +27,21 @@ func (c *Client) Broadcasts() (*BroadcastsResp, error) {
 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
+		err = fmt.Errorf("get %q: %w", u, err)
 		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
 
 	cresp, err := c.Do(req)
 	if err != nil {
+		err = fmt.Errorf("do req: %w", err)
 		return nil, err
 	}
 	defer cresp.Body.Close()
 
 	err = json.NewDecoder(cresp.Body).Decode(&resp)
 	if err != nil {
+		err = fmt.Errorf("decode resp: %w", err)
 		return nil, err
 	}
 
@@ -54,11 +59,13 @@ func (c *Client) BroadcastsOptions() error {
 
 	req, err := http.NewRequest("OPTIONS", u.String(), nil)
 	if err != nil {
+		err = fmt.Errorf("options %q: %w", u, err)
 		return err
 	}
 
 	resp, err := c.Do(req)
 	if err != nil {
+		err = fmt.Errorf("do req: %w", err)
 		return err
 	}
 	defer resp.Body.Close()

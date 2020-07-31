@@ -1,5 +1,7 @@
 package sugusama
 
+import "fmt"
+
 const (
 	StoriesHash = "04334405dbdef91f2c4e207b84c204d7"
 )
@@ -32,6 +34,7 @@ func (c *Client) Stories(opts *StoriesOpts) (*StoriesResp, error) {
 		&resp,
 	)
 	if err != nil {
+		err = fmt.Errorf("graphql stories: %w", err)
 		return nil, err
 	}
 
